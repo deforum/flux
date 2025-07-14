@@ -4,13 +4,7 @@ Flux backend for Deforum using Black Forest Labs Flux. This package includes cod
 
 ## Installation
 
-### Quick Install (CPU only - not recommended)
-```bash
-pip install deforum-flux
-```
-
-### Recommended: GPU Support
-For optimal performance, install PyTorch with CUDA 12.8 support first:
+Install PyTorch with CUDA 12.8 support first:
 
 ```bash
 # Install PyTorch with CUDA 12.8 (required for RTX 50 series)
@@ -23,7 +17,7 @@ pip install deforum-flux
 pip install deforum-flux[tensorrt]
 ```
 
-**Note:** RTX 50 series cards require CUDA 12.8. The quick install will give you CPU-only PyTorch which is very slow for image generation.
+**Note:** RTX 50 series cards require CUDA 12.8.
 
 ## Development Installation
 
