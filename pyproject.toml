@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "deforum-flux"
-version = "0.1.0"
+version = "0.1.2"
 description = "Flux backend for Deforum"
 authors = [{name = "Deforum Inc", email = "hello@deforum.io"}]
 license = {text = "MIT"}

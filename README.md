@@ -8,11 +8,17 @@ Flux backend for Deforum using Black Forest Labs Flux. This package includes cod
 pip install deforum-flux
 ```
 
+## Publish
+```bash
+python -m build
+python -m twine upload dist/*
+```
+
 ## License
 
 - **Deforum Flux Backend wrapper**: MIT License
-- **Flux code**: Apache 2.0 License (see `src/flux/LICENSE-FLUX-CODE`)
-- **FLUX.1-schnell model**: See `src/flux/LICENSE-FLUX1-schnell.txt`
-- **FLUX.1-dev model**: See `src/flux/LICENSE-FLUX1-dev.txt`
+- **Flux code**: Apache 2.0 License (see `src/flux/LICENSE`)
+- **FLUX.1-schnell model**: See `src/flux/LICENSE-FLUX1-schnell.md`
+- **FLUX.1-dev model**: See `src/flux/LICENSE-FLUX1-dev.md`
 
 **Important:** The FLUX.1-dev model has a non-commercial license. Check the license files before using in commercial applications.
