@@ -4,20 +4,17 @@ Flux backend for Deforum using Black Forest Labs Flux. This package includes cod
 
 ## Installation
 
-### Quick Install (CPU or existing PyTorch)
+### Quick Install (CPU only - not recommended)
 ```bash
 pip install deforum-flux
 ```
 
 ### Recommended: GPU Support
-For optimal performance, install PyTorch with CUDA support first:
+For optimal performance, install PyTorch with CUDA 12.8 support first:
 
 ```bash
-# For RTX 50 series cards (requires CUDA 12.8)
+# Install PyTorch with CUDA 12.8 (required for RTX 50 series)
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
-
-# For older cards (CUDA 12.1)
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # Then install deforum-flux
 pip install deforum-flux
@@ -26,7 +23,24 @@ pip install deforum-flux
 pip install deforum-flux[tensorrt]
 ```
 
-**Note:** RTX 50 series cards require CUDA 12.8 or higher. The quick install will give you CPU-only PyTorch which is very slow for image generation.
+**Note:** RTX 50 series cards require CUDA 12.8. The quick install will give you CPU-only PyTorch which is very slow for image generation.
+
+## Development Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/deforum/flux.git
+cd flux
+
+# Install PyTorch with CUDA 12.8
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+
+# Install in development mode
+pip install -e .
+
+# Optional: Install with TensorRT support
+pip install -e .[tensorrt]
+```
 
 ## Publish
 ```bash
