@@ -10,7 +10,31 @@ authors = [{name = "Deforum Inc", email = "hello@deforum.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "accelerate",
+    "einops",
+    "fire",
+    "huggingface-hub",
+    "safetensors",
+    "sentencepiece",
+    "transformers",
+    "tokenizers",
+    "protobuf",
+    "requests",
+    "ruff",
+    "opencv-python",
+]
+
+[project.optional-dependencies]
+tensorrt = [
+    "tensorrt-cu12",
+    "colored",
+    "onnx",
+    "onnxruntime",
+    "onnxruntime-gpu",
+    "onnx-graphsurgeon",
+    "polygraphy",
+]
 
 [project.urls]
 Homepage = "https://github.com/deforum/flux"
