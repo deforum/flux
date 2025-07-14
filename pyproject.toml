@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deforum-flux"
+version = "0.1.0"
+description = "Flux backend for Deforum"
+authors = [{name = "Deforum Inc", email = "hello@deforum.io"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flux @ git+https://github.com/black-forest-labs/flux.git",
+    "torch",
+    "transformers",
+]
+
+[project.urls]
+Homepage = "https://github.com/deforum/flux"
+Repository = "https://github.com/deforum/flux"
