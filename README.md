@@ -10,7 +10,9 @@ pip install deforum-flux
 
 ## License
 
-- Deforum Flux Backend: MIT License
-- Included Flux code: Apache 2.0 License (see `src/flux/LICENSE`)
+- **Deforum Flux Backend wrapper**: MIT License
+- **Flux code**: Apache 2.0 License (see `src/flux/LICENSE-FLUX-CODE`)
+- **FLUX.1-schnell model**: See `src/flux/LICENSE-FLUX1-schnell.txt`
+- **FLUX.1-dev model**: See `src/flux/LICENSE-FLUX1-dev.txt`
 
-Original Flux code is Copyright Black Forest Labs and contributors.
+**Important:** The FLUX.1-dev model has a non-commercial license. Check the license files before using in commercial applications.

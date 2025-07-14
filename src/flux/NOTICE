@@ -1,5 +1,6 @@
-This directory contains code from:
+This directory contains code and models from:
 https://github.com/black-forest-labs/flux
 
-Original license: Apache 2.0
+Code license: Apache 2.0
+Model licenses: See LICENSE-FLUX1-*.txt files
 Copyright: Black Forest Labs and contributors
