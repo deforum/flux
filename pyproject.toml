@@ -10,11 +10,7 @@ authors = [{name = "Deforum Inc", email = "hello@deforum.io"}]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [
-    "flux @ git+https://github.com/black-forest-labs/flux.git",
-    "torch",
-    "transformers",
-]
+dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/deforum/flux"
