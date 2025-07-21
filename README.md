@@ -44,9 +44,13 @@ python -m twine upload dist/*
 
 ## License
 
-- **Deforum Flux Backend wrapper**: MIT License
-- **Flux code**: Apache 2.0 License (see `src/flux/LICENSE`)
-- **FLUX.1-schnell model**: See `src/flux/LICENSE-FLUX1-schnell.md`
-- **FLUX.1-dev model**: See `src/flux/LICENSE-FLUX1-dev.md`
+This package includes code from multiple sources:
 
-**Important:** The FLUX.1-dev model has a non-commercial license. Check the license files before using in commercial applications.
+- **Deforum Flux Backend** (wrapper code): MIT License
+- **Black Forest Labs Flux** (core implementation): Apache 2.0 License
+- **FLUX.1-schnell model**: Apache 2.0 License (commercial use allowed)
+- **FLUX.1-dev model**: Non-commercial license (no commercial use)
+
+⚠️ **Important**: If you use the FLUX.1-dev model, you are bound by its non-commercial license terms. See `src/flux/LICENSE-FLUX1-dev.md` for details.
+
+For commercial applications, use only the FLUX.1-schnell model.

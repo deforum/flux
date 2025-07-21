@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+recursive-include src/flux LICENSE*
+recursive-include src/flux NOTICE

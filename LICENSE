@@ -1,6 +1,22 @@
-MIT License
+# Deforum Flux Backend License
 
-Copyright (c) 2025 deforum
+This package contains code from multiple sources with different licenses:
+
+## Deforum Flux Backend (wrapper code)
+Copyright (c) 2024 Deforum Inc
+Licensed under the MIT License (see below)
+
+## Black Forest Labs Flux
+Copyright (c) 2024 Black Forest Labs
+Licensed under the Apache License 2.0 (see src/flux/LICENSE)
+
+## FLUX.1 Model Licenses
+- FLUX.1-schnell: Apache 2.0 (see src/flux/LICENSE-FLUX1-schnell.md)
+- FLUX.1-dev: Non-commercial license (see src/flux/LICENSE-FLUX1-dev.md)
+
+---
+
+MIT License (for Deforum Flux Backend wrapper)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
