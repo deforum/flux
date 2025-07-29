@@ -36,6 +36,30 @@ pip install -e .
 pip install -e .[tensorrt]
 ```
 
+```
+flux/src/deforum_flux/ (GENERATOR)
+  ├── animation/                 
+  │   ├── motion_engine.py       
+  │   ├── motion_transforms.py   
+  │   ├── motion_utils.py        
+  │   └── parameter_engine.py
+  ├── models/                 
+  │   ├── model_paths.py
+  │   ├── models.py
+  │   └── model_manager.py
+  ├── bridge/   
+  │   ├── bridge_config.py
+  │   ├── bridge_generation_utils.py
+  │   ├── bridge_stats_and_cleanup.py
+  │   └── dependency_config.py
+  │   └── flux_deforum_bridge.py
+  └── api/
+  │   ├── routes/
+  │   ├── models/
+
+```
+
+
 ## Publish
 ```bash
 python -m build
