@@ -35,8 +35,8 @@ pip install -e .
 # Optional: Install with TensorRT support
 pip install -e .[tensorrt]
 ```
+## Structure
 
-```
 flux/src/deforum_flux/ (GENERATOR)
   ├── animation/                 
   │   ├── motion_engine.py       
