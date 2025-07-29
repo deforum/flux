@@ -1,0 +1,39 @@
+{
+  "model_paths": {
+    "workspace_models": "/workspace/models",
+    "local_models": "/deforum_flux/models",
+    "use_workspace": true,
+    "clip": {
+      "workspace": "/workspace/models/clip",
+      "local": "/deforum_flux/models/clip",
+      "enabled": true
+    },
+    "t5": {
+      "workspace": "/workspace/models/t5",
+      "local": "/deforum_flux/models/t5",
+      "enabled": true
+    },
+    "unet": {
+      "workspace": "/workspace/models/unet",
+      "local": "/deforum_flux/models/unet",
+      "enabled": true
+    },
+    "vae": {
+      "workspace": "/workspace/models/vae",
+      "local": "/deforum_flux/models/vae",
+      "enabled": true
+    },
+    "flux": {
+      "workspace": "/workspace/models/flux",
+      "local": "/deforum_flux/models/flux",
+      "enabled": true
+    },
+    "motion": {
+      "workspace": "/workspace/models/motion",
+      "local": "/deforum_flux/models/motion",
+      "enabled": true
+    }
+  },
+  "description": "Centralized model path configuration",
+  "last_updated": "1753707318.3702056"
+}
