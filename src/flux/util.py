@@ -8,7 +8,7 @@ import requests
 import torch
 from einops import rearrange
 from huggingface_hub import hf_hub_download, login
-from imwatermark import WatermarkEncoder
+# from imwatermark import WatermarkEncoder
 from PIL import ExifTags, Image
 from safetensors.torch import load_file as load_sft
 
@@ -739,4 +739,4 @@ class WatermarkEmbedder:
 WATERMARK_MESSAGE = 0b001010101111111010000111100111001111010100101110
 # bin(x)[2:] gives bits of x as str, use int to convert them to 0/1
 WATERMARK_BITS = [int(bit) for bit in bin(WATERMARK_MESSAGE)[2:]]
-embed_watermark = WatermarkEmbedder(WATERMARK_BITS)
+# embed_watermark = WatermarkEmbedder(WATERMARK_BITS)
