@@ -1,0 +1,15 @@
+torch
+torchvision
+torchaudio
+accelerate
+einops
+fire
+huggingface-hub
+safetensors
+sentencepiece
+transformers
+tokenizers
+protobuf
+requests
+ruff
+opencv-python

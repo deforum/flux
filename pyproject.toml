@@ -26,6 +26,7 @@ dependencies = [
     "requests",
     "ruff",
     "opencv-python",
+    "pydantic"
 ]
 
 [project.optional-dependencies]
