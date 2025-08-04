@@ -13,3 +13,4 @@ protobuf
 requests
 ruff
 opencv-python
+pydantic
