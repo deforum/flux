@@ -101,9 +101,9 @@ def parse_prompt(options: SamplingOptions) -> SamplingOptions | None:
 
 @torch.inference_mode()
 def main(
-    name: str = "flux-schnell",
-    width: int = 1360,
-    height: int = 768,
+    name: str = "flux-dev",
+    width: int = 1024,
+    height: int = 1024,
     seed: int | None = None,
     prompt: str = (
         "a photo of a forest with mist swirling around the tree trunks. The word "
@@ -116,7 +116,7 @@ def main(
     offload: bool = False,
     output_dir: str = "output",
     add_sampling_metadata: bool = True,
-    trt: bool = False,
+    trt: bool = True,
     trt_transformer_precision: str = "bf16",
     track_usage: bool = False,
 ):

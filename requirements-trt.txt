@@ -1,0 +1,7 @@
+tensorrt-cu12
+colored
+onnx
+onnxruntime
+onnxruntime-gpu
+onnx-graphsurgeon
+polygraphy

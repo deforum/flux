@@ -254,7 +254,7 @@ def save_image(
     print(f"Saving {fn}")
     # bring into PIL format and save
     x = x.clamp(-1, 1)
-    x = embed_watermark(x.float())
+    # x = embed_watermark(x.float())
     x = rearrange(x[0], "c h w -> h w c")
 
     img = Image.fromarray((127.5 * (x + 1.0)).cpu().byte().numpy())
@@ -578,6 +578,37 @@ configs = {
             shift_factor=0.1159,
         ),
     ),
+    "flux-dev-krea": ModelSpec(
+        repo_id="black-forest-labs/FLUX.1-Krea-dev",
+        repo_flow="flux1-krea-dev.safetensors",
+        repo_ae="ae.safetensors",
+        params=FluxParams(
+            in_channels=64,
+            out_channels=64,
+            vec_in_dim=768,
+            context_in_dim=4096,
+            hidden_size=3072,
+            mlp_ratio=4.0,
+            num_heads=24,
+            depth=19,
+            depth_single_blocks=38,
+            axes_dim=[16, 56, 56],
+            theta=10_000,
+            qkv_bias=True,
+            guidance_embed=True,
+        ),
+        ae_params=AutoEncoderParams(
+            resolution=256,
+            in_channels=3,
+            ch=128,
+            out_ch=3,
+            ch_mult=[1, 2, 4, 4],
+            num_res_blocks=2,
+            z_channels=16,
+            scale_factor=0.3611,
+            shift_factor=0.1159,
+        ),
+    ),
 }
 
 
@@ -702,7 +733,7 @@ class WatermarkEmbedder:
     def __init__(self, watermark):
         self.watermark = watermark
         self.num_bits = len(WATERMARK_BITS)
-        self.encoder = WatermarkEncoder()
+        # self.encoder = WatermarkEncoder()
         self.encoder.set_watermark("bits", self.watermark)
 
     def __call__(self, image: torch.Tensor) -> torch.Tensor:
