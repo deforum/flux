@@ -1,0 +1,4 @@
+- add redux support
+- fix trt implementation
+- simplify model map
+- add init image

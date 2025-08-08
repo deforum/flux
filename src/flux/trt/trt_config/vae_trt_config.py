@@ -85,8 +85,8 @@ class VAEDecoderConfig(VAEBaseConfig):
             min_image_shape = 672
             max_image_shape = 1568
         else:
-            min_image_shape = 768
-            max_image_shape = 1360
+            min_image_shape = 512
+            max_image_shape = 1344
 
         return cls(
             model_name=model_name,

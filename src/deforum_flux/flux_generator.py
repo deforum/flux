@@ -22,6 +22,13 @@ from flux.util import (
     load_t5,
 )
 
+MODELS = [
+    "flux-schnell",
+    "flux-dev",
+    "flux-dev-kontext",
+    "flux-dev-redux"
+]
+
 class FluxConfig(BaseModel):
     name: str = "flux-schnell"
     num_steps: Optional[int] = None
@@ -79,63 +86,31 @@ class FluxGenerator:
                 trt_t5_precision=config.trt_t5_precision,
             )
 
-            # kontext repo does have a VAE so we load dev version
-            if config.name == "flux-dev-kontext":
+            # Load TRT engines
+            engines = trt_ctx_manager.load_engines(
+                model_name=config.name,
+                module_names={
+                    ModuleName.CLIP,
+                    ModuleName.TRANSFORMER,
+                    ModuleName.T5,
+                    ModuleName.VAE,
+                    ModuleName.VAE_ENCODER,
+                },
+                engine_dir=config.trt_engines_dir,
+                custom_onnx_paths=onnx_dir or config.trt_custom_onnx_paths,
+                trt_image_height=config.trt_image_height,
+                trt_image_width=config.trt_image_width,
+                trt_batch_size=config.trt_batch_size,
+                trt_timing_cache=config.trt_timing_cache,
+                trt_static_batch=config.trt_static_batch,
+                trt_static_shape=config.trt_static_shape,
+            )
 
-                # Load TRT engines
-                engines = trt_ctx_manager.load_engines(
-                    model_name=config.name,
-                    module_names={
-                        ModuleName.CLIP,
-                        ModuleName.TRANSFORMER,
-                        ModuleName.T5,
-                    },
-                    engine_dir=config.trt_engines_dir,
-                    custom_onnx_paths=onnx_dir or config.trt_custom_onnx_paths,
-                    trt_image_height=config.trt_image_height,
-                    trt_image_width=config.trt_image_width,
-                    trt_batch_size=config.trt_batch_size,
-                    trt_timing_cache=config.trt_timing_cache,
-                    trt_static_batch=config.trt_static_batch,
-                    trt_static_shape=config.trt_static_shape,
-                )
-                
-                self.model = engines[ModuleName.TRANSFORMER].to(self.device)
-                self.clip = engines[ModuleName.CLIP].to(self.device)
-                self.t5 = engines[ModuleName.T5].to(self.device)
-                self.ae = load_ae(config.name, self.device)
-                
-            else:
-
-                # Load TRT engines
-                engines = trt_ctx_manager.load_engines(
-                    model_name=config.name,
-                    module_names={
-                        ModuleName.CLIP,
-                        ModuleName.TRANSFORMER,
-                        ModuleName.T5,
-                        ModuleName.VAE,
-                    },
-                    engine_dir=config.trt_engines_dir,
-                    custom_onnx_paths=onnx_dir or config.trt_custom_onnx_paths,
-                    trt_image_height=config.trt_image_height,
-                    trt_image_width=config.trt_image_width,
-                    trt_batch_size=config.trt_batch_size,
-                    trt_timing_cache=config.trt_timing_cache,
-                    trt_static_batch=config.trt_static_batch,
-                    trt_static_shape=config.trt_static_shape,
-                )
-
-                self.ae = engines[ModuleName.VAE].to(self.device)
-                self.model = engines[ModuleName.TRANSFORMER].to(self.device)
-                self.clip = engines[ModuleName.CLIP].to(self.device)
-                self.t5 = engines[ModuleName.T5].to(self.device)
-
-            # print all loaded engines
-            print(f"self.ae: {self.ae}")
-            print(f"self.model: {self.model}")
-            print(f"self.clip: {self.clip}")
-            print(f"self.t5: {self.t5}")
+            self.ae = engines[ModuleName.VAE].to(self.device)
+            self.encoder = engines[ModuleName.VAE_ENCODER].to(self.device)
+            self.model = engines[ModuleName.TRANSFORMER].to(self.device)
+            self.clip = engines[ModuleName.CLIP].to(self.device)
+            self.t5 = engines[ModuleName.T5].to(self.device)
 
     @torch.inference_mode()
     def __call__(self, args: FluxArgs):
