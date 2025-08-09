@@ -212,7 +212,7 @@ def prepare_kontext(
     clip: HFEmbedder,
     prompt: str | list[str],
     ae: AutoEncoder,
-    img_cond_path: str,
+    img_cond: Image,
     seed: int,
     device: torch.device,
     target_width: int | None = None,
@@ -223,7 +223,6 @@ def prepare_kontext(
     if bs == 1 and not isinstance(prompt, str):
         bs = len(prompt)
 
-    img_cond = Image.open(img_cond_path).convert("RGB")
     width, height = img_cond.size
     aspect_ratio = width / height
     # Kontext is trained on specific resolutions, using one of them is recommended
@@ -270,7 +269,7 @@ def prepare_kontext(
     return_dict = prepare(t5, clip, img, prompt)
     return_dict["img_cond_seq"] = img_cond
     return_dict["img_cond_seq_ids"] = img_cond_ids.to(device)
-    return_dict["img_cond_orig"] = img_cond_orig
+    # return_dict["img_cond_orig"] = img_cond_orig
     return return_dict, target_height, target_width
 
 
