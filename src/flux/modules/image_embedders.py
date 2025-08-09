@@ -7,7 +7,7 @@ from safetensors.torch import load_file as load_sft
 from torch import nn
 from transformers import AutoModelForDepthEstimation, AutoProcessor, SiglipImageProcessor, SiglipVisionModel
 
-from flux.util import print_load_warning
+# from flux.util import print_load_warning
 
 
 class DepthImageEncoder:
@@ -75,24 +75,23 @@ class ReduxImageEncoder(nn.Module):
         super().__init__()
 
         self.redux_dim = redux_dim
-        self.device = device if isinstance(device, torch.device) else torch.device(device)
         self.dtype = dtype
 
-        with self.device:
+        with torch.device(device):
             self.redux_up = nn.Linear(redux_dim, txt_in_features * 3, dtype=dtype)
             self.redux_down = nn.Linear(txt_in_features * 3, txt_in_features, dtype=dtype)
 
             sd = load_sft(redux_path, device=str(device))
             missing, unexpected = self.load_state_dict(sd, strict=False, assign=True)
-            print_load_warning(missing, unexpected)
+            # print_load_warning(missing, unexpected)
 
             self.siglip = SiglipVisionModel.from_pretrained(self.siglip_model_name).to(dtype=dtype)
         self.normalize = SiglipImageProcessor.from_pretrained(self.siglip_model_name)
 
-    def __call__(self, x: Image.Image) -> torch.Tensor:
+    def __call__(self, x: Image.Image, device) -> torch.Tensor:
         imgs = self.normalize.preprocess(images=[x], do_resize=True, return_tensors="pt", do_convert_rgb=True)
 
-        _encoded_x = self.siglip(**imgs.to(device=self.device, dtype=self.dtype)).last_hidden_state
+        _encoded_x = self.siglip(**imgs.to(device=device, dtype=self.dtype)).last_hidden_state
 
         projected_x = self.redux_down(nn.functional.silu(self.redux_up(_encoded_x)))
 

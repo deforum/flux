@@ -163,15 +163,15 @@ def prepare_redux(
     img: Tensor,
     prompt: str | list[str],
     encoder: ReduxImageEncoder,
-    img_cond_path: str,
+    img_cond: Image,
+    device: torch.device,
 ) -> dict[str, Tensor]:
     bs, _, h, w = img.shape
     if bs == 1 and not isinstance(prompt, str):
         bs = len(prompt)
 
-    img_cond = Image.open(img_cond_path).convert("RGB")
     with torch.no_grad():
-        img_cond = encoder(img_cond)
+        img_cond = encoder(img_cond, device=device)
 
     img_cond = img_cond.to(torch.bfloat16)
     if img_cond.shape[0] == 1 and bs > 1:
@@ -270,7 +270,7 @@ def prepare_kontext(
     return_dict["img_cond_seq"] = img_cond
     return_dict["img_cond_seq_ids"] = img_cond_ids.to(device)
     # return_dict["img_cond_orig"] = img_cond_orig
-    return return_dict, target_height, target_width
+    return return_dict
 
 
 def time_shift(mu: float, sigma: float, t: Tensor):

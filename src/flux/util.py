@@ -15,6 +15,7 @@ from safetensors.torch import load_file as load_sft
 from flux.model import Flux, FluxLoraWrapper, FluxParams
 from flux.modules.autoencoder import AutoEncoder, AutoEncoderParams
 from flux.modules.conditioner import HFEmbedder
+from flux.modules.image_embedders import ReduxImageEncoder
 
 CHECKPOINTS_DIR = Path("checkpoints")
 CHECKPOINTS_DIR.mkdir(exist_ok=True)
@@ -708,6 +709,13 @@ def load_ae(name: str, device: str | torch.device = "cuda") -> AutoEncoder:
     missing, unexpected = ae.load_state_dict(sd, strict=False, assign=True)
     print_load_warning(missing, unexpected)
     return ae
+
+
+def load_redux(device: str | torch.device = "cuda") -> ReduxImageEncoder:
+    redux_path = str(
+        get_checkpoint_path("black-forest-labs/FLUX.1-Redux-dev", "flux1-redux-dev.safetensors", "FLUX_REDUX")
+    )
+    return ReduxImageEncoder(device, redux_path=redux_path)
 
 
 def optionally_expand_state_dict(model: torch.nn.Module, state_dict: dict) -> dict:

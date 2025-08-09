@@ -1,7 +1,7 @@
 from deforum_flux import FluxGenerator, FluxConfig, FluxArgs, save_image
 
 config = FluxConfig(
-    name="flux-dev-kontext",
+    name="flux-dev",
     offload=True
 )
 
