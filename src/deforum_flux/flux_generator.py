@@ -9,7 +9,8 @@ from flux.sampling import (
     prepare,
     prepare_kontext,
     prepare_redux,
-    unpack
+    unpack,
+    encode_image
 )
 from flux.util import (
     load_ae,
@@ -39,14 +40,12 @@ class FluxGenerator:
 
         t0 = time.perf_counter()
 
-        x = get_noise(
-            1,
-            args.height,
-            args.width,
-            device=self.device,
-            dtype=torch.bfloat16,
-            seed=args.seed,
-        )
+        if args.init_image is not None:
+            noise = get_noise(1, args.height, args.width, device=self.device, dtype=torch.bfloat16, seed=args.seed)
+            encoded_img = encode_image(self.ae, args.init_image, args.height, args.width, self.device)
+            x = args.strength * encoded_img.to(device=self.device) + (1.0 - args.strength) * noise
+        else:
+            x = get_noise(1, args.height, args.width, device=self.device, dtype=torch.bfloat16, seed=args.seed)
 
         if self.offload:
             self.ae = self.ae.cpu()

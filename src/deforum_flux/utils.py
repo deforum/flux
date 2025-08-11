@@ -1,6 +1,9 @@
 import torch
 from einops import rearrange
 from PIL import Image
+import requests
+from io import BytesIO
+from typing import Union
 
 def save_image(filename: str, x: torch.Tensor):
     x = x.clamp(-1, 1)
@@ -23,3 +26,18 @@ def center_crop_resize(image, target_width, target_height):
         image = image.crop((0, (h - new_h) // 2, w, (h + new_h) // 2))
     
     return image.resize((target_width, target_height), Image.Resampling.LANCZOS)
+
+def load_image_from_source(image_source: Union[str, Image.Image], param_name: str) -> Image.Image:
+    """Load image from PIL Image, file path, or URL"""
+    if isinstance(image_source, Image.Image):
+        return image_source
+    elif isinstance(image_source, str):
+        if image_source.startswith(('http://', 'https://')):
+            # It's a URL
+            response = requests.get(image_source)
+            return Image.open(BytesIO(response.content)).convert("RGB")
+        else:
+            # It's a file path
+            return Image.open(image_source).convert("RGB")
+    else:
+        raise ValueError(f'{param_name} must be a PIL Image, file path, or URL')

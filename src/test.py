@@ -8,13 +8,14 @@ config = FluxConfig(
 flux = FluxGenerator(config)
 
 args = FluxArgs(
-    prompt="make it red", 
-    img_cond="input.jpg",
+    prompt="a detailed portrait of a person", 
+    # img_cond="input.jpg",
+    init_image="input.jpg",
+    strength=0.025,
     width=1024,
     height=1024,
-    num_steps=50,
+    num_steps=25,
     guidance=3.5,
-    seed=42
 )
 print(args)
 image = flux(args)

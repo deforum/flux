@@ -361,3 +361,29 @@ def unpack(x: Tensor, height: int, width: int) -> Tensor:
         ph=2,
         pw=2,
     )
+
+
+def encode_image(
+    ae: AutoEncoder,
+    image: Image.Image, 
+    height: int,
+    width: int,
+    device: torch.device,
+    dtype: torch.dtype = torch.bfloat16
+) -> Tensor:
+    # Resize to target dimensions (following kontext pattern)
+    image = image.resize((width, height), Image.Resampling.LANCZOS)
+    
+    # Convert to tensor and normalize to [-1, 1]
+    img_array = np.array(image)
+    img_tensor = torch.from_numpy(img_array).float() / 127.5 - 1.0
+    img_tensor = rearrange(img_tensor, "h w c -> 1 c h w")
+    
+    # Encode with VAE
+    with torch.no_grad():
+        encoded = ae.encode(img_tensor)
+    
+    # Convert to target dtype but DON'T pack yet - prepare() will handle that
+    encoded = encoded.to(dtype)
+    
+    return encoded

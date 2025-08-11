@@ -6,7 +6,6 @@ MODELS = [
     "flux-schnell",
     "flux-dev",
     "flux-dev-kontext",
-    "flux-dev-redux"
 ]
 
 class FluxConfig(BaseModel):
