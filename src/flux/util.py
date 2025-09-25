@@ -297,8 +297,8 @@ class ModelSpec:
 
 configs = {
     "flux-dev": ModelSpec(
-        repo_id="black-forest-labs/FLUX.1-dev",
-        repo_flow="flux1-dev.safetensors",
+        repo_id="black-forest-labs/FLUX.1-Krea-dev",
+        repo_flow="flux1-krea-dev.safetensors",
         repo_ae="ae.safetensors",
         params=FluxParams(
             in_channels=64,

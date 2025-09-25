@@ -7,6 +7,8 @@ from typing import Union
 
 def save_image(filename: str, x: torch.Tensor):
     x = x.clamp(-1, 1)
+    # thld = 0.95
+    # x = torch.where(torch.abs(x) <= thld, x, torch.sign(x) * (thld + torch.tanh(torch.abs(x) - thld) * 0.8))
     x = rearrange(x[0], "c h w -> h w c")
     img = Image.fromarray((127.5 * (x + 1.0)).cpu().byte().numpy())
     img.save(filename, quality=95, subsampling=0)

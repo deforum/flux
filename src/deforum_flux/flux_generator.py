@@ -1,9 +1,11 @@
 # flux_generator.py
 import time
 import torch
+from einops import rearrange, repeat
 
 from flux.sampling import (
     denoise,
+    denoise_rf,
     get_noise,
     get_schedule,
     prepare,
@@ -39,13 +41,7 @@ class FluxGenerator:
     def __call__(self, args: FluxArgs):
 
         t0 = time.perf_counter()
-
-        if args.init_image is not None:
-            noise = get_noise(1, args.height, args.width, device=self.device, dtype=torch.bfloat16, seed=args.seed)
-            encoded_img = encode_image(self.ae, args.init_image, args.height, args.width, self.device)
-            x = args.strength * encoded_img.to(device=self.device) + (1.0 - args.strength) * noise
-        else:
-            x = get_noise(1, args.height, args.width, device=self.device, dtype=torch.bfloat16, seed=args.seed)
+        x = get_noise(1, args.height, args.width, device=self.device, dtype=torch.bfloat16, seed=args.seed)
 
         if self.offload:
             self.ae = self.ae.cpu()
@@ -60,13 +56,14 @@ class FluxGenerator:
             self.clip = self.clip.to(self.device)
             self.ae = self.ae.to(self.device)
 
-        if self.name == "flux-dev-kontext":
+        # prepare inputs
+        if self.name == "flux-dev-kontext" and args.img_kontext is not None:
             inp = prepare_kontext(
                 t5=self.t5,
                 clip=self.clip,
                 prompt=args.prompt,
                 ae=self.ae,
-                img_cond=args.img_cond,
+                img_cond=args.img_kontext,
                 target_width=args.width,
                 target_height=args.height,
                 bs=1,
@@ -75,7 +72,7 @@ class FluxGenerator:
             )
         else:
             # handle redux image embedding
-            if args.img_cond is not None:
+            if args.img_redux is not None:
                 if self.offload:
                     self.redux = self.redux.to(self.device)
                     torch.cuda.empty_cache()
@@ -85,11 +82,13 @@ class FluxGenerator:
                     x,
                     prompt=args.prompt,
                     encoder=self.redux,
-                    img_cond=args.img_cond,
-                    device=self.device
+                    img_cond=args.img_redux,
+                    device=self.device,
+                    redux_strength=args.redux_strength,
+                    redux_mask=args.redux_mask,
+                    seed=args.seed,
                 )
             else:
-                # handle regular text embedding
                 inp = prepare(self.t5, self.clip, x, prompt=args.prompt)
 
         timesteps = get_schedule(args.num_steps, inp["img"].shape[1], shift=(self.name != "flux-schnell"))
@@ -102,7 +101,23 @@ class FluxGenerator:
             torch.cuda.empty_cache()
             self.model = self.model.to(self.device)
 
-        x = denoise(self.model, **inp, timesteps=timesteps, guidance=args.guidance)
+        if args.init_image is not None:
+            encoded_img = encode_image(self.ae, args.init_image, args.height, args.width, self.device)
+            encoded_img = rearrange(encoded_img, "b c (h ph) (w pw) -> b (h w) (c ph pw)", ph=2, pw=2)
+            encoded_img = encoded_img.to(self.device)
+            x = denoise_rf(
+                self.model,
+                **inp,
+                encoded_img=encoded_img,
+                timesteps=timesteps,
+                guidance=args.guidance,
+                gamma=args.gamma,
+                eta=args.eta,
+                start_timestep=args.start_timestep,
+                stop_timestep=args.stop_timestep
+            )
+        else:
+            x = denoise(self.model, **inp, timesteps=timesteps, guidance=args.guidance)
 
         if self.offload:
             self.model = self.model.cpu() 

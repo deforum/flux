@@ -165,6 +165,9 @@ def prepare_redux(
     encoder: ReduxImageEncoder,
     img_cond: Image,
     device: torch.device,
+    redux_strength: float,
+    redux_mask: float,
+    seed: int,
 ) -> dict[str, Tensor]:
     bs, _, h, w = img.shape
     if bs == 1 and not isinstance(prompt, str):
@@ -176,6 +179,16 @@ def prepare_redux(
     img_cond = img_cond.to(torch.bfloat16)
     if img_cond.shape[0] == 1 and bs > 1:
         img_cond = repeat(img_cond, "1 ... -> bs ...", bs=bs)
+
+
+    # Create a generator with the specific seed
+    generator = torch.Generator(device=img_cond.device)
+    generator.manual_seed(seed)
+
+    # Use the generator for the random operation
+    mask = torch.rand(img_cond.shape, device=img_cond.device, dtype=img_cond.dtype, generator=generator) > (1-redux_mask)
+    img_cond = img_cond * mask
+    img_cond = img_cond * redux_strength
 
     img = rearrange(img, "b c (h ph) (w pw) -> b (h w) (c ph pw)", ph=2, pw=2)
     if img.shape[0] == 1 and bs > 1:
@@ -193,6 +206,7 @@ def prepare_redux(
     if txt.shape[0] == 1 and bs > 1:
         txt = repeat(txt, "1 ... -> bs ...", bs=bs)
     txt_ids = torch.zeros(bs, txt.shape[1], 3)
+
 
     vec = clip(prompt)
     if vec.shape[0] == 1 and bs > 1:
@@ -223,18 +237,15 @@ def prepare_kontext(
     if bs == 1 and not isinstance(prompt, str):
         bs = len(prompt)
 
-    width, height = img_cond.size
-    aspect_ratio = width / height
-    # Kontext is trained on specific resolutions, using one of them is recommended
-    _, width, height = min((abs(aspect_ratio - w / h), w, h) for w, h in PREFERED_KONTEXT_RESOLUTIONS)
-    width = 2 * int(width / 16)
-    height = 2 * int(height / 16)
-
-    img_cond = img_cond.resize((8 * width, 8 * height), Image.Resampling.LANCZOS)
+    # Use the image as-is, no resizing
+    width_px, height_px = img_cond.size
+    # Calculate latent dimensions (assuming 8x downscaling by the autoencoder)
+    width = width_px // 8
+    height = height_px // 8
+    
     img_cond = np.array(img_cond)
     img_cond = torch.from_numpy(img_cond).float() / 127.5 - 1.0
     img_cond = rearrange(img_cond, "h w c -> 1 c h w")
-    img_cond_orig = img_cond.clone()
 
     with torch.no_grad():
         img_cond = ae.encode(img_cond.to(device))
@@ -253,9 +264,9 @@ def prepare_kontext(
     img_cond_ids = repeat(img_cond_ids, "h w c -> b (h w) c", b=bs)
 
     if target_width is None:
-        target_width = 8 * width
+        target_width = width_px
     if target_height is None:
-        target_height = 8 * height
+        target_height = height_px
 
     img = get_noise(
         1,
@@ -348,6 +359,73 @@ def denoise(
             pred = pred[:, : img.shape[1]]
 
         img = img + (t_prev - t_curr) * pred
+
+    return img
+
+
+def denoise_rf(
+    model: Flux,
+    img: Tensor,
+    img_ids: Tensor,
+    txt: Tensor,
+    txt_ids: Tensor,
+    vec: Tensor,
+    timesteps: list[float],
+    guidance: float = 4.0,
+    encoded_img: Tensor | None = None,
+    gamma: float = 0.1,
+    eta: float = 0.5,
+    start_timestep: float = 1.0,
+    stop_timestep: float = 0.8,
+):
+    guidance_vec = torch.full((img.shape[0],), guidance, device=img.device, dtype=img.dtype)
+    
+    y_0 = encoded_img.clone()
+    Y_t = encoded_img.clone()  # Starting point (clean image latents)
+    y_1 = img.clone()  # Target destination (random noise)
+    txt_uncond = torch.zeros_like(txt)
+    vec_uncond = torch.zeros_like(vec)
+    forward_timesteps = timesteps[::-1]  # Reverse: goes from 0 to 1
+    for t_curr, t_next in zip(forward_timesteps[:-1], forward_timesteps[1:]):
+        t_vec = torch.full((Y_t.shape[0],), t_curr, dtype=Y_t.dtype, device=Y_t.device)  # Use Y_t shape/dtype/device
+        u_t = model(
+            img=Y_t, 
+            img_ids=img_ids, 
+            txt=txt_uncond, 
+            txt_ids=txt_ids, 
+            y=vec_uncond, 
+            timesteps=t_vec, 
+            guidance=torch.zeros_like(guidance_vec)  # Use zero guidance for unconditional
+        )
+        u_t = u_t[:, :Y_t.shape[1]] 
+        direct_to_noise = (y_1 - Y_t) / (1 - t_curr)
+        u_hat_t = (1 - gamma) * direct_to_noise + gamma * u_t
+        Y_t = Y_t + u_hat_t * (t_next - t_curr)
+
+    img = Y_t
+
+    for t_curr, t_prev in zip(timesteps[:-1], timesteps[1:]):
+        # Check if we're in the control range
+        apply_control = t_curr <= start_timestep and t_curr >= stop_timestep
+        t_vec = torch.full((img.shape[0],), t_curr, dtype=img.dtype, device=img.device)
+        v_t = model(
+            img=img,
+            img_ids=img_ids,
+            txt=txt,
+            txt_ids=txt_ids,
+            y=vec,
+            timesteps=t_vec,
+            guidance=guidance_vec,
+        )
+        v_t = v_t[:, :img.shape[1]]
+        if apply_control:
+            # Calculate correction vector pointing toward original image
+            v_t_cond = (img - y_0) / max(t_curr, 1e-8)
+            # Blend with eta
+            v_hat_t = v_t + eta * (v_t_cond - v_t)
+        else:
+            v_hat_t = v_t
+        img = img + (t_prev - t_curr) * v_hat_t
 
     return img
 
